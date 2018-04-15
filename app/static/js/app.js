@@ -48,8 +48,18 @@ let Form = Vue.component('upload-form',{
     `
     <div id = 'app'>
         <h1>Upload Form</h1>
-            
         
+            <div v-if = "errors.length > 0">
+                <ul>
+                    <li v-for = "error in errors" class = "alert-danger">
+                        {{error.error}}
+                    </li>
+                </ul> 
+            </div>
+            <div v-else class = "alert-success">
+                {{response.message}}
+            </div>
+            
         <form id = 'uploadform' enctype = 'multipart/form-data' method = 'POST' @submit.prevent="uploadPhoto" name = 'form'>
             <br><br>
             <label for = 'description'><h5>Description</h5></label>
@@ -87,14 +97,23 @@ let Form = Vue.component('upload-form',{
                 return response.json();
                 })
                 .then(function (jsonResponse) {
-                console.log(jsonResponse);
+                if (jsonResponse.Errors == null){
+                    self.response = jsonResponse;
+                    self.errors   = [];
+                    uploadForm.reset() //Reset the form after a successful upload
+                    console.log(self.response)
+                }
+                else{
+                    self.errors   = jsonResponse.Errors; 
+                    console.log(self.errors)
+                }
                 })
                 .catch(function (error) {
                 console.log(error);
             });
         }
     }
-})
+});
 
 // Define Routes
 const router = new VueRouter({
